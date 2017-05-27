@@ -19,7 +19,7 @@ import javax.net.ssl.HttpsURLConnection;
 public class NetworkUtils {
     public final static String BASE_URL = "http://api.themoviedb.org/3/movie/popular";
     //TODO insert API Key below
-    private final static String API_KEY = "";
+    private final static String API_KEY = "1d551bb865d207218a13edf0a6f2f2ec";
     public final static String QUERY_PARAM = "api_key";
 
     public static URL buildURL() {

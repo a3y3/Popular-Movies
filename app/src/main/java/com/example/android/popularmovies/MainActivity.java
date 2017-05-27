@@ -1,11 +1,13 @@
 package com.example.android.popularmovies;
 
-import android.net.Network;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -14,12 +16,13 @@ import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
     private TextView banner;
     public ProgressBar progressBar;
+    public RecyclerView recyclerView;
+    public MovieAdapter movieAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +43,12 @@ public class MainActivity extends AppCompatActivity {
 
         banner= (TextView)findViewById(R.id.tv_banner);
         progressBar = (ProgressBar)findViewById(R.id.pb_load);
+        recyclerView = (RecyclerView)findViewById(R.id.rv_display);
+        movieAdapter = new MovieAdapter(this);
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(movieAdapter);
         loadData();
 
     }
@@ -47,12 +56,16 @@ public class MainActivity extends AppCompatActivity {
     public void loadData(){
         //Construct a URL and fetch data.
         URL url = NetworkUtils.buildURL();
-        banner.setText(url.toString());
         new QueryTask().execute(url);
 
     }
 
     public class QueryTask extends AsyncTask<URL, Void, String[]>{
+        String movieTitleData[];
+        String imageURLs[];
+        String synopsisData[];
+        String userRatingData[];
+        String releaseDateData[];
         @Override
         protected void onPreExecute() {
             progressBar.setVisibility(View.VISIBLE);
@@ -61,12 +74,15 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String[] doInBackground(URL... params) {
             URL url = params[0];
-            String movieTitleData[];
             String results;
             try{
                 results = NetworkUtils.getResponseFromServer(url);
-                movieTitleData = OpenMovieJsonUtils
-                        .getTitleFromJson(results);
+                movieTitleData = OpenMovieJsonUtils.getTitleFromJson(results);
+                imageURLs = OpenMovieJsonUtils.getImageUrlsFromJson(results);
+                synopsisData = OpenMovieJsonUtils.getSynopsisFromJson(results);
+                userRatingData = OpenMovieJsonUtils.getUserRatingFromJson(results);
+                releaseDateData = OpenMovieJsonUtils.getReleaseDateFromJson(results);
+
             }
             catch(Exception e){
                 Log.e("MainActivity","ERROR OCCURED!"+e.toString());
@@ -77,14 +93,13 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String s[]) {
-            String result = "";
             if (s != null && !s.equals("")) {
-                for (int i = 0; i < s.length; i++) {
-                    result+=s[i];
-                }
             }
-            progressBar.setVisibility(View.INVISIBLE);
-            banner.setText(result);
+            progressBar.setVisibility(View.GONE);
+            MovieAdapter movieAdapter = new MovieAdapter(MainActivity.this);
+            movieAdapter.setImageString(imageURLs);
+
+            recyclerView.setAdapter(movieAdapter);
 
         }
     }
