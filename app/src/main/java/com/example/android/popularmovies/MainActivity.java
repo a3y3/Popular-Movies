@@ -11,13 +11,15 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
-private TextView banner;
+    private TextView banner;
+    public ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +39,7 @@ private TextView banner;
 
 
         banner= (TextView)findViewById(R.id.tv_banner);
+        progressBar = (ProgressBar)findViewById(R.id.pb_load);
         loadData();
 
     }
@@ -44,29 +47,45 @@ private TextView banner;
     public void loadData(){
         //Construct a URL and fetch data.
         URL url = NetworkUtils.buildURL();
+        banner.setText(url.toString());
         new QueryTask().execute(url);
 
     }
 
-    public class QueryTask extends AsyncTask<URL, Void, String>{
+    public class QueryTask extends AsyncTask<URL, Void, String[]>{
         @Override
-        protected String doInBackground(URL... params) {
-            URL url = params[0];
-            String results = null;
-            try{
-                results = NetworkUtils.getResponseFromServer(url);
-            }
-            catch(IOException e){
-                Log.e("MainActivity",e.toString());
-            }
-            return results;
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            if(s != null && !s.equals("")){
-                banner.setText(s);
+        protected String[] doInBackground(URL... params) {
+            URL url = params[0];
+            String movieTitleData[];
+            String results;
+            try{
+                results = NetworkUtils.getResponseFromServer(url);
+                movieTitleData = OpenMovieJsonUtils
+                        .getTitleFromJson(results);
             }
+            catch(Exception e){
+                Log.e("MainActivity","ERROR OCCURED!"+e.toString());
+                return null;
+            }
+            return movieTitleData;
+        }
+
+        @Override
+        protected void onPostExecute(String s[]) {
+            String result = "";
+            if (s != null && !s.equals("")) {
+                for (int i = 0; i < s.length; i++) {
+                    result+=s[i];
+                }
+            }
+            progressBar.setVisibility(View.INVISIBLE);
+            banner.setText(result);
+
         }
     }
 

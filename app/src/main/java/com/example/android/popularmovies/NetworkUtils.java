@@ -19,7 +19,7 @@ import javax.net.ssl.HttpsURLConnection;
 public class NetworkUtils {
     public final static String BASE_URL = "http://api.themoviedb.org/3/movie/popular";
     //TODO insert API Key below
-    private final static String API_KEY = "INSERT API KEY HERE";
+    private final static String API_KEY = "";
     public final static String QUERY_PARAM = "api_key";
 
     public static URL buildURL() {
@@ -36,22 +36,21 @@ public class NetworkUtils {
     }
 
     public static String getResponseFromServer(URL url) throws IOException {
-        HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
-        try{
-            InputStream inputStream = httpURLConnection.getInputStream();
-            Scanner scanner = new Scanner(inputStream);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        try {
+            InputStream in = urlConnection.getInputStream();
+
+            Scanner scanner = new Scanner(in);
             scanner.useDelimiter("\\A");
-            if(scanner.hasNext()){
+
+            boolean hasInput = scanner.hasNext();
+            if (hasInput) {
                 return scanner.next();
-            }
-            else
-            {
+            } else {
                 return null;
             }
-
-        }
-        finally {
-            httpURLConnection.disconnect();
+        } finally {
+            urlConnection.disconnect();
         }
     }
 }
