@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Popular Movies</string>
-    <string name="action_settings">Settings</string>
+    <string name="sort_popular">Sort by popularity</string>
+    <string name="sort_rating">Sort by User Rating</string>
     <string name="header_string">All data fetched from The Movie Database (http://www.themoviedb.org)</string>
+    <string name="tv_append_user_rating">User Rating </string>
+    <string name="tv_append_release_date">Release </string>
 </resources>

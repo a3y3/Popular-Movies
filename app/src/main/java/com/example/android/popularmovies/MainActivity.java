@@ -1,9 +1,13 @@
 package com.example.android.popularmovies;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,8 +22,7 @@ import android.widget.TextView;
 
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity {
-    private TextView banner;
+public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRecyclerClickListener{
     public ProgressBar progressBar;
     public RecyclerView recyclerView;
     public MovieAdapter movieAdapter;
@@ -31,20 +34,19 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        new AlertDialog.Builder(this)
+                .setTitle("Disclaimer")
+                .setMessage(R.string.header_string)
+                .setPositiveButton("I know!", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-
-        banner= (TextView)findViewById(R.id.tv_banner);
+                    }
+                })
+                .show();
         progressBar = (ProgressBar)findViewById(R.id.pb_load);
         recyclerView = (RecyclerView)findViewById(R.id.rv_display);
-        movieAdapter = new MovieAdapter(this);
+        movieAdapter = new MovieAdapter(this, this);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     public void loadData(){
         //Construct a URL and fetch data.
         URL url = NetworkUtils.buildURL();
+        Log.e("111",url+"");
         new QueryTask().execute(url);
 
     }
@@ -96,16 +99,26 @@ public class MainActivity extends AppCompatActivity {
             if (s != null && !s.equals("")) {
             }
             progressBar.setVisibility(View.GONE);
-            MovieAdapter movieAdapter = new MovieAdapter(MainActivity.this);
             movieAdapter.setImageString(imageURLs);
             movieAdapter.setReleaseDateData(releaseDateData);
             movieAdapter.setSynopsisData(synopsisData);
             movieAdapter.setTitleData(movieTitleData);
-            movieAdapter.setUserRatingData(synopsisData);
+            movieAdapter.setUserRatingData(userRatingData);
 
             recyclerView.setAdapter(movieAdapter);
 
         }
+    }
+
+    @Override
+    public void onClick(String title, String synopsis, String imageURL, String releaseDate, String userRating) {
+        Intent intent = new Intent(this, MovieDetails.class);
+        intent.putExtra("title",title);
+        intent.putExtra("userRating", userRating);
+        intent.putExtra("imageURL",imageURL);
+        intent.putExtra("synopsis",synopsis);
+        intent.putExtra("releaseDate", releaseDate);
+        startActivity(intent);
     }
 
     @Override
@@ -123,8 +136,19 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_sort_popularity) {
+            movieAdapter.setImageString(null);
+            NetworkUtils.SORT_ORDER = "popular";
+            loadData();
             return true;
+        }
+        if (id == R.id.action_sort_rating) {
+            movieAdapter.setImageString(null);
+            NetworkUtils.SORT_ORDER = "top_rated";
+            Log.e("111","I set it as top_rated."+NetworkUtils.SORT_ORDER);
+            loadData();
+            return true;
+
         }
 
         return super.onOptionsItemSelected(item);

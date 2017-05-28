@@ -2,7 +2,6 @@ package com.example.android.popularmovies;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,14 +18,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     private String synopsisData[];
     private String userRatingData[];
     private String releaseDateData[];
-    private OnRecyclerClickListener onRecyclerClickListener;
+    private final OnRecyclerClickListener onRecyclerClickListener;
     private String[] mImageUrls;
     private Context mContext;
     public interface OnRecyclerClickListener{
-        public void onClick(View view);
+        void onClick(String title, String synopsis, String imageURL, String releaseDate, String userRating);
     }
-    public MovieAdapter(Context context){
+    public MovieAdapter(Context context, OnRecyclerClickListener onRecyclerClickListener){
         this.mContext = context;
+        this.onRecyclerClickListener = onRecyclerClickListener;
     }
 
     public class MovieAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -40,8 +40,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            
-
+            String title = movieTitleData[adapterPosition];
+            String userRating = userRatingData[adapterPosition];
+            String synopsis = synopsisData[adapterPosition];
+            String imageURL = mImageUrls[adapterPosition];
+            String releaseDate = releaseDateData[adapterPosition];
+            onRecyclerClickListener.onClick(title, synopsis, imageURL, releaseDate, userRating);
         }
     }
 
