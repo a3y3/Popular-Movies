@@ -16,7 +16,7 @@ import java.util.Scanner;
 
 public class NetworkUtils {
     //TODO insert API Key below
-    private final static String API_KEY = "1d551bb865d207218a13edf0a6f2f2ec";
+    private final static String API_KEY = "INSERT_KEY_HERE";
     public final static String QUERY_PARAM = "api_key";
     public static String SORT_ORDER = "popular";
     public static String BASE_URL = "http://api.themoviedb.org/3/movie/"+NetworkUtils.SORT_ORDER;
