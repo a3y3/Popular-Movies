@@ -15,18 +15,33 @@ import com.squareup.picasso.Picasso;
  */
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder> {
+    private String movieTitleData[];
+    private String synopsisData[];
+    private String userRatingData[];
+    private String releaseDateData[];
+    private OnRecyclerClickListener onRecyclerClickListener;
     private String[] mImageUrls;
     private Context mContext;
-    public MovieAdapter(){}
+    public interface OnRecyclerClickListener{
+        public void onClick(View view);
+    }
     public MovieAdapter(Context context){
         this.mContext = context;
     }
 
-    public class MovieAdapterViewHolder extends RecyclerView.ViewHolder{
+    public class MovieAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public ImageView imageView;
         public MovieAdapterViewHolder(View itemView){
             super(itemView);
+            itemView.setOnClickListener(this);
             imageView = (ImageView)itemView.findViewById(R.id.rv_image_view);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int adapterPosition = getAdapterPosition();
+            
+
         }
     }
 
@@ -47,12 +62,27 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     @Override
     public void onBindViewHolder(MovieAdapterViewHolder holder, int position) {
         String URL = mImageUrls[position];
-        Log.e("111","Loading http://image.tmdb.org/t/p/w342/"+URL);
         Picasso.with(mContext).load("http://image.tmdb.org/t/p/w185/"+URL).into(holder.imageView);
     }
 
     public void setImageString(String [] imageString){
         this.mImageUrls = imageString;
         notifyDataSetChanged();
+    }
+
+    public void setTitleData(String[] titleString) {
+        this.movieTitleData = titleString;
+    }
+
+    public void setUserRatingData(String[] userRatingData){
+        this.userRatingData = userRatingData;
+    }
+
+    public void setSynopsisData(String synopsisData[]){
+        this.synopsisData = synopsisData;
+    }
+
+    public void setReleaseDateData(String[] releaseDateData){
+        this.releaseDateData = releaseDateData;
     }
 }

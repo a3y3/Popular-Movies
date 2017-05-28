@@ -98,6 +98,10 @@ public class MainActivity extends AppCompatActivity {
             progressBar.setVisibility(View.GONE);
             MovieAdapter movieAdapter = new MovieAdapter(MainActivity.this);
             movieAdapter.setImageString(imageURLs);
+            movieAdapter.setReleaseDateData(releaseDateData);
+            movieAdapter.setSynopsisData(synopsisData);
+            movieAdapter.setTitleData(movieTitleData);
+            movieAdapter.setUserRatingData(synopsisData);
 
             recyclerView.setAdapter(movieAdapter);
 
