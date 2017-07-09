@@ -100,4 +100,11 @@ public class OpenMovieJsonUtils {
         }
         return trailerKey;
     }
+
+    public static String getRuntimeFromJson(String jsonData) throws JSONException{
+        String runtime;
+        JSONObject jsonObject = new JSONObject(jsonData);
+        runtime = jsonObject.getString("runtime");
+        return runtime;
+    }
 }

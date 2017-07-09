@@ -52,6 +52,22 @@ public class NetworkUtils {
         return url;
     }
 
+    public static URL buildUrlForSpecificMovie(String id){
+        String detailsBaseURL = "http://api.themoviedb.org/3/movie/";
+        Uri builtUri = Uri.parse(detailsBaseURL).buildUpon()
+                .appendPath(id)
+                .appendQueryParameter(QUERY_PARAM, API_KEY)
+                .build();
+        URL url = null;
+        try{
+            url = new URL(builtUri.toString());
+        }
+        catch(MalformedURLException malformedUrlException){
+            Log.e("NetworkUtils","Malformed URL:"+builtUri+malformedUrlException.toString());
+        }
+        return url;
+    }
+
     public static String getResponseFromServer(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {

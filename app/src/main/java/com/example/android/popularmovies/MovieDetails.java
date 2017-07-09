@@ -18,10 +18,12 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 import java.net.URL;
 
-public class MovieDetails extends AppCompatActivity implements LoaderManager.LoaderCallbacks<String> {
+public class MovieDetails extends AppCompatActivity implements LoaderManager.LoaderCallbacks<String[]> {
     String id;
     String title;
     String userRating;
@@ -36,10 +38,11 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
     private TextView userRatingTextView;
     private TextView releaseDateTextView;
     private TextView synopsisTextView;
-    private ImageView imageView;
+    private ImageView movieArt;
     private ImageView trailerButton;
     private ConstraintLayout constraintLayout;
     private ProgressBar mProgressBar;
+    private TextView runtimeTextView;
 
 
     @Override
@@ -58,30 +61,32 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
         userRatingTextView = (TextView) findViewById(R.id.tv_user_rating);
         releaseDateTextView = (TextView) findViewById(R.id.tv_release_date);
         synopsisTextView = (TextView) findViewById(R.id.tv_synopsis);
-        imageView = (ImageView) findViewById(R.id.iv_movie_art);
+        movieArt = (ImageView) findViewById(R.id.iv_movie_art);
         constraintLayout = (ConstraintLayout) findViewById(R.id.detail_layout);
         mProgressBar = (ProgressBar)findViewById(R.id.pb_movie_details);
-        trailerButton = (ImageView)findViewById(R.id.trailer_iv_buton);;
+        trailerButton = (ImageView)findViewById(R.id.trailer_iv_buton);
+        runtimeTextView = (TextView)findViewById(R.id.tv_runtime);
 
         //Bundle for loader
         Bundle queryBundle = new Bundle();
         queryBundle.putString(MOVIE_ID_KEY, id);
         titleTextView.setText(title);
-        userRatingTextView.setText(R.string.tv_append_user_rating);
-        userRatingTextView.append(" " + userRating);
+        userRatingTextView.setText(userRating);
+        userRatingTextView.append("/10");
         synopsisTextView.setText(synopsis);
         String releaseYear = releaseDate.substring(0,4);
         releaseDateTextView.setText(releaseYear);
-        Picasso.with(this).load("http://image.tmdb.org/t/p/w185/" + imageURL).into(imageView);
+        Picasso.with(this).load("http://image.tmdb.org/t/p/w185/" + imageURL).into(movieArt);
 
         getSupportLoaderManager().initLoader(LoaderId, queryBundle, this);
 
     }
 
     @Override
-    public Loader<String> onCreateLoader(int id, final Bundle args) {
-        return new AsyncTaskLoader<String>(this) {
-            URL url;
+    public Loader<String[]> onCreateLoader(int id, final Bundle args) {
+        return new AsyncTaskLoader<String[]>(this) {
+            URL trailerURL;
+            URL runtimeURL;
             String innerClassId = args.getString(MOVIE_ID_KEY);
 
             @Override
@@ -93,16 +98,23 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
             }
 
             @Override
-            public String loadInBackground() {
-                url = NetworkUtils.buildDetailsURL(innerClassId);
-                String trailerKey = null;
+            public String[] loadInBackground() {
+                trailerURL = NetworkUtils.buildDetailsURL(innerClassId);
+                runtimeURL = NetworkUtils.buildUrlForSpecificMovie(innerClassId);
+                String data[] = new String [2];
+                String trailerKey;
+                String runtime;
                 try {
-                    String jsonTrailerData = NetworkUtils.getResponseFromServer(url);
+                    String jsonTrailerData = NetworkUtils.getResponseFromServer(trailerURL);
+                    String jsonRuntimeData = NetworkUtils.getResponseFromServer(runtimeURL);
                     trailerKey = OpenMovieJsonUtils.getTrailersFromJson(jsonTrailerData);
+                    runtime = OpenMovieJsonUtils.getRuntimeFromJson(jsonRuntimeData);
+                    data[0]=trailerKey;
+                    data[1]=runtime;
                 } catch (Exception exception) {
                     Log.e("MovieDetails", exception.toString());
                 }
-                return trailerKey;
+                return data;
             }
         };
     }
@@ -113,10 +125,10 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
-    public void onLoadFinished(Loader<String> loader, final String data) {
+    public void onLoadFinished(Loader<String[]> loader, final String data[]) {
         mProgressBar.setVisibility(View.INVISIBLE);
         constraintLayout.setVisibility(View.VISIBLE);
-        if(data == null){
+        if(data[0] == null){
             //No trailer found, hide trailers play button.
             trailerButton.setVisibility(View.INVISIBLE);
         }
@@ -127,5 +139,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                 startActivity(openInYoutube);
             }
         });
+        runtimeTextView.setText(data[1]);
+        runtimeTextView.append("min");
     }
 }
