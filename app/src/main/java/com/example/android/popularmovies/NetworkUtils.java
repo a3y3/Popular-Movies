@@ -16,7 +16,7 @@ import java.util.Scanner;
 
 public class NetworkUtils {
     //TODO insert API Key below
-    private final static String API_KEY = "INSERT_KEY_HERE";
+    private final static String API_KEY = "1d551bb865d207218a13edf0a6f2f2ec";
     public final static String QUERY_PARAM = "api_key";
     public static String SORT_ORDER = "popular";
     public static String BASE_URL = "http://api.themoviedb.org/3/movie/"+NetworkUtils.SORT_ORDER;
@@ -31,6 +31,23 @@ public class NetworkUtils {
             url = new URL(builtUri.toString());
         } catch (MalformedURLException e) {
             Log.e("NetworksUtils", e.toString());
+        }
+        return url;
+    }
+
+    public static URL buildDetailsURL(String id){
+        String detailsBaseURL = "http://api.themoviedb.org/3/movie/";
+        Uri builtUri = Uri.parse(detailsBaseURL).buildUpon()
+                .appendPath(id)
+                .appendPath("videos")
+                .appendQueryParameter(QUERY_PARAM, API_KEY)
+                .build();
+        URL url = null;
+        try{
+            url = new URL(builtUri.toString());
+        }
+        catch(MalformedURLException malformedUrlException){
+            Log.e("NetworkUtils","Malformed URL:"+builtUri+malformedUrlException.toString());
         }
         return url;
     }

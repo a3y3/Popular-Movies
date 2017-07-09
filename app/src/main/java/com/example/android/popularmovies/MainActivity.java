@@ -58,12 +58,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
     public void loadData(){
         //Construct a URL and fetch data.
         URL url = NetworkUtils.buildURL();
-        Log.e("111",url+"");
         new QueryTask().execute(url);
 
     }
 
-    public class QueryTask extends AsyncTask<URL, Void, String[]>{
+    public class QueryTask extends AsyncTask<URL, Void, Void>{
+        String movieIdData[];
         String movieTitleData[];
         String imageURLs[];
         String synopsisData[];
@@ -75,11 +75,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
         }
 
         @Override
-        protected String[] doInBackground(URL... params) {
+        protected Void doInBackground(URL... params) {
             URL url = params[0];
             String results;
             try{
                 results = NetworkUtils.getResponseFromServer(url);
+                movieIdData = OpenMovieJsonUtils.getMovieIdFromJson(results);
                 movieTitleData = OpenMovieJsonUtils.getTitleFromJson(results);
                 imageURLs = OpenMovieJsonUtils.getImageUrlsFromJson(results);
                 synopsisData = OpenMovieJsonUtils.getSynopsisFromJson(results);
@@ -91,14 +92,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
                 Log.e("MainActivity","ERROR OCCURED!"+e.toString());
                 return null;
             }
-            return movieTitleData;
+            return null;
         }
 
         @Override
-        protected void onPostExecute(String s[]) {
-            if (s != null && !s.equals("")) {
-            }
+        protected void onPostExecute(Void voids) {
             progressBar.setVisibility(View.GONE);
+            movieAdapter.setMovieIdData(movieIdData);
             movieAdapter.setImageString(imageURLs);
             movieAdapter.setReleaseDateData(releaseDateData);
             movieAdapter.setSynopsisData(synopsisData);
@@ -111,8 +111,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
     }
 
     @Override
-    public void onClick(String title, String synopsis, String imageURL, String releaseDate, String userRating) {
+    public void onClick(String id, String title, String synopsis, String imageURL, String releaseDate, String userRating) {
         Intent intent = new Intent(this, MovieDetails.class);
+        intent.putExtra("id",id);
         intent.putExtra("title",title);
         intent.putExtra("userRating", userRating);
         intent.putExtra("imageURL",imageURL);
@@ -145,7 +146,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
         if (id == R.id.action_sort_rating) {
             movieAdapter.setImageString(null);
             NetworkUtils.SORT_ORDER = "top_rated";
-            Log.e("111","I set it as top_rated."+NetworkUtils.SORT_ORDER);
             loadData();
             return true;
 

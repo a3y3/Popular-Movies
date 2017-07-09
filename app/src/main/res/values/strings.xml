@@ -5,4 +5,5 @@
     <string name="header_string">All data fetched from The Movie Database (http://www.themoviedb.org)</string>
     <string name="tv_append_user_rating">User Rating </string>
     <string name="tv_append_release_date">Release </string>
+    <string name="movie_poster_accesibility">Movie Poster</string>
 </resources>

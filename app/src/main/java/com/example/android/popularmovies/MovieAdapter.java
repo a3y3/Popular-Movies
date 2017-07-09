@@ -14,6 +14,7 @@ import com.squareup.picasso.Picasso;
  */
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder> {
+    private String movieIdData[];
     private String movieTitleData[];
     private String synopsisData[];
     private String userRatingData[];
@@ -22,7 +23,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     private String[] mImageUrls;
     private Context mContext;
     public interface OnRecyclerClickListener{
-        void onClick(String title, String synopsis, String imageURL, String releaseDate, String userRating);
+        void onClick(String id, String title, String synopsis, String imageURL, String releaseDate, String userRating);
     }
     public MovieAdapter(Context context, OnRecyclerClickListener onRecyclerClickListener){
         this.mContext = context;
@@ -40,12 +41,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
+            String id = movieIdData[adapterPosition];
             String title = movieTitleData[adapterPosition];
             String userRating = userRatingData[adapterPosition];
             String synopsis = synopsisData[adapterPosition];
             String imageURL = mImageUrls[adapterPosition];
             String releaseDate = releaseDateData[adapterPosition];
-            onRecyclerClickListener.onClick(title, synopsis, imageURL, releaseDate, userRating);
+            onRecyclerClickListener.onClick(id, title, synopsis, imageURL, releaseDate, userRating);
         }
     }
 
@@ -72,6 +74,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     public void setImageString(String [] imageString){
         this.mImageUrls = imageString;
         notifyDataSetChanged();
+    }
+
+    public void setMovieIdData(String[] id){
+        this.movieIdData = id;
     }
 
     public void setTitleData(String[] titleString) {
