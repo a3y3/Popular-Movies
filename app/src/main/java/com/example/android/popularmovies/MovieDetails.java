@@ -30,7 +30,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
     String synopsis;
     String imageURL;
     String releaseDate;
-    private int LoaderId = 444;
+    private int LoaderId = 112;
 
     private String MOVIE_ID_KEY = "MovieIdKey";
 

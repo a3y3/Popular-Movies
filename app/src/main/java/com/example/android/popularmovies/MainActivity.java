@@ -1,16 +1,15 @@
 package com.example.android.popularmovies;
 
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -18,14 +17,14 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRecyclerClickListener{
+public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRecyclerClickListener, LoaderManager.LoaderCallbacks<String[][]>{
     public ProgressBar progressBar;
     public RecyclerView recyclerView;
     public MovieAdapter movieAdapter;
+    private int LOADER_ID = 111;
+    private String URL_BUNDLE_ARGS_KEY = "query_url";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        new AlertDialog.Builder(this)
+        /*new AlertDialog.Builder(this)
                 .setTitle("Disclaimer")
                 .setMessage(R.string.header_string)
                 .setPositiveButton("I know!", new DialogInterface.OnClickListener() {
@@ -43,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
 
                     }
                 })
-                .show();
+                .show();*/
         progressBar = (ProgressBar)findViewById(R.id.pb_load);
         recyclerView = (RecyclerView)findViewById(R.id.rv_display);
         movieAdapter = new MovieAdapter(this, this);
@@ -56,58 +55,64 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
     }
 
     public void loadData(){
-        //Construct a URL and fetch data.
-        URL url = NetworkUtils.buildURL();
-        new QueryTask().execute(url);
+        getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+    }
+
+    @Override
+    public Loader<String[][]> onCreateLoader(int id, final Bundle args) {
+        return new AsyncTaskLoader<String[][]>(this) {
+            String movieIdData[];
+            String movieTitleData[];
+            String imageURLs[];
+            String synopsisData[];
+            String userRatingData[];
+            String releaseDateData[];
+            @Override
+            protected void onStartLoading() {
+                super.onStartLoading();
+                progressBar.setVisibility(View.VISIBLE);
+                forceLoad();
+            }
+
+            @Override
+            public String[][] loadInBackground() {
+                URL url = NetworkUtils.buildURL();
+                String results;
+                try{
+                    results = NetworkUtils.getResponseFromServer(url);
+                    movieIdData = OpenMovieJsonUtils.getMovieIdFromJson(results);
+                    movieTitleData = OpenMovieJsonUtils.getTitleFromJson(results);
+                    imageURLs = OpenMovieJsonUtils.getImageUrlsFromJson(results);
+                    synopsisData = OpenMovieJsonUtils.getSynopsisFromJson(results);
+                    userRatingData = OpenMovieJsonUtils.getUserRatingFromJson(results);
+                    releaseDateData = OpenMovieJsonUtils.getReleaseDateFromJson(results);
+
+                    return new String[][]{movieIdData,movieTitleData,imageURLs,synopsisData,userRatingData,releaseDateData};
+                }
+                catch(Exception e) {
+                    Log.e("MainActivity", "ERROR OCCURRED!" + e.toString());
+                    return null;
+                }
+            }
+        };
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
 
     }
 
-    public class QueryTask extends AsyncTask<URL, Void, Void>{
-        String movieIdData[];
-        String movieTitleData[];
-        String imageURLs[];
-        String synopsisData[];
-        String userRatingData[];
-        String releaseDateData[];
-        @Override
-        protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
-        }
+    @Override
+    public void onLoadFinished(Loader<String[][]> loader, String data[][]) {
+        progressBar.setVisibility(View.GONE);
+        movieAdapter.setMovieIdData(data[0]);
+        movieAdapter.setTitleData(data[1]);
+        movieAdapter.setImageString(data[2]);
+        movieAdapter.setSynopsisData(data[3]);
+        movieAdapter.setUserRatingData(data[4]);
+        movieAdapter.setReleaseDateData(data[5]);
 
-        @Override
-        protected Void doInBackground(URL... params) {
-            URL url = params[0];
-            String results;
-            try{
-                results = NetworkUtils.getResponseFromServer(url);
-                movieIdData = OpenMovieJsonUtils.getMovieIdFromJson(results);
-                movieTitleData = OpenMovieJsonUtils.getTitleFromJson(results);
-                imageURLs = OpenMovieJsonUtils.getImageUrlsFromJson(results);
-                synopsisData = OpenMovieJsonUtils.getSynopsisFromJson(results);
-                userRatingData = OpenMovieJsonUtils.getUserRatingFromJson(results);
-                releaseDateData = OpenMovieJsonUtils.getReleaseDateFromJson(results);
-
-            }
-            catch(Exception e){
-                Log.e("MainActivity","ERROR OCCURED!"+e.toString());
-                return null;
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void voids) {
-            progressBar.setVisibility(View.GONE);
-            movieAdapter.setMovieIdData(movieIdData);
-            movieAdapter.setImageString(imageURLs);
-            movieAdapter.setReleaseDateData(releaseDateData);
-            movieAdapter.setSynopsisData(synopsisData);
-            movieAdapter.setTitleData(movieTitleData);
-            movieAdapter.setUserRatingData(userRatingData);
-
-            recyclerView.setAdapter(movieAdapter);
-
-        }
+        recyclerView.setAdapter(movieAdapter);
     }
 
     @Override
