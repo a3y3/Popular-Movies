@@ -107,4 +107,15 @@ public class OpenMovieJsonUtils {
         runtime = jsonObject.getString("runtime");
         return runtime;
     }
+
+    public static String[] getReviewsFromJson(String jsonData) throws JSONException{
+        String reviews[] = new String[3];
+        JSONObject jsonObject = new JSONObject(jsonData);
+        JSONArray reviewArray = jsonObject.getJSONArray("results");
+        for (int i = 0; i < Math.min(reviewArray.length(), 3); i++) {
+            JSONObject trailerObject = reviewArray.getJSONObject(i);
+            reviews[i] = trailerObject.getString("url");
+        }
+        return reviews;
+    }
 }

@@ -22,7 +22,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
     public RecyclerView recyclerView;
     public MovieAdapter movieAdapter;
     private int LOADER_ID = 111;
-    private String URL_BUNDLE_ARGS_KEY = "query_url";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
         progressBar = (ProgressBar)findViewById(R.id.pb_load);
         recyclerView = (RecyclerView)findViewById(R.id.rv_display);
         movieAdapter = new MovieAdapter(this, this);
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(movieAdapter);

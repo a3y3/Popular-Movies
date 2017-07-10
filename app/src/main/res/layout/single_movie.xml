@@ -8,5 +8,6 @@
     <ImageView
         android:layout_width="185dp"
         android:layout_height="278dp"
+        android:contentDescription="@string/movie"
         android:id="@+id/rv_image_view" />
 </LinearLayout>

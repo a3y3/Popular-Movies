@@ -12,6 +12,7 @@
         android:id="@+id/pb_load"
         android:layout_centerInParent="true"/>
     <android.support.v7.widget.RecyclerView
+        android:layout_marginTop="42dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/rv_display">
