@@ -8,9 +8,9 @@
     <string name="movie_poster_accesibility">Movie Poster</string>
     <string name="play_trailer">Play Trailer</string>
     <string name="movie">Movie</string>
-    <string name="review_1"><u>Review 1</u></string>
-    <string name="review_2"><u>Review 2</u></string>
-    <string name="review_3"><u>Review 3</u></string>
+    <string name="review_1"><u>Read Review 1</u></string>
+    <string name="review_2"><u>Read Review 2</u></string>
+    <string name="review_3"><u>Read Review 3</u></string>
     <string name="mark_as_favourite">Mark as favourite</string>
     <string name="yay_offline">Yay! Now you can view these details offline.</string>
 </resources>

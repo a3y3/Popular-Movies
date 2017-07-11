@@ -2,6 +2,7 @@ package com.example.android.popularmovies;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.media.Image;
 import android.net.Uri;
 import android.support.constraint.ConstraintLayout;
@@ -29,7 +30,7 @@ import java.io.IOException;
 import java.net.URL;
 
 public class MovieDetails extends AppCompatActivity implements LoaderManager.LoaderCallbacks<String[]> {
-    String id;
+    String movieId;
     String title;
     String userRating;
     String synopsis;
@@ -60,7 +61,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
         Intent intent = getIntent();
-        id = intent.getStringExtra("id");
+        movieId = intent.getStringExtra("id");
         title = intent.getStringExtra("title");
         userRating = intent.getStringExtra("userRating");
         synopsis = intent.getStringExtra("synopsis");
@@ -83,7 +84,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
 
         //Bundle for loader
         Bundle queryBundle = new Bundle();
-        queryBundle.putString(MOVIE_ID_KEY, id);
+        queryBundle.putString(MOVIE_ID_KEY, movieId);
         titleTextView.setText(title);
         userRatingTextView.setText(userRating);
         userRatingTextView.append("/10");
@@ -98,6 +99,15 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
 
     public void handleStarredMovie(boolean ifClicked) {
         starClicked = ifClicked;
+        if(!starClicked){
+            starClicked = true;
+            starMovie.setImageResource(R.drawable.ic_star_white_24px);
+        }
+        else
+        {
+            starClicked = false;
+            starMovie.setImageResource(R.drawable.ic_star_border_white_24px);
+        }
         starMovie.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -105,13 +115,13 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                     starClicked = true;
                     starMovie.setImageResource(R.drawable.ic_star_white_24px);
                     ContentValues contentValues = new ContentValues();
-                    contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, id);
-                    contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_TITLE,title);
+                    contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, movieId);
+                    contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_TITLE, title);
                     contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_RELEASE_DATE, releaseDate);
                     contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_USER_RATING, userRating);
                     contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_RUNTIME, runtime);
-                    contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_SYNOPSIS,synopsis);
-                    contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_IMAGE_URL,imageURL);
+                    contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_SYNOPSIS, synopsis);
+                    contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_IMAGE_URL, imageURL);
                     getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
                     Snackbar.make(view, R.string.yay_offline, Snackbar.LENGTH_LONG)
                             .setAction("Cancel", new View.OnClickListener() {
@@ -123,6 +133,9 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                             }).show();
 
                 } else {
+                    getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
+                            MovieContract.MovieEntry.COLUMN_MOVIE_ID+"=?",
+                            new String[]{movieId});
                     starClicked = false;
                     starMovie.setImageResource(R.drawable.ic_star_border_white_24px);
                 }
@@ -131,11 +144,19 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void onLoading() {
+        titleTextView.setVisibility(View.INVISIBLE);
         mProgressBar.setVisibility(View.VISIBLE);
+        starMovie.setVisibility(View.INVISIBLE);
+    }
+
+    private void onStopLoading() {
+        titleTextView.setVisibility(View.VISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
+        starMovie.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public Loader<String[]> onCreateLoader(int id, final Bundle args) {
+    public Loader<String[]> onCreateLoader(final int id, final Bundle args) {
         return new AsyncTaskLoader<String[]>(this) {
             URL trailerURL;
             URL runtimeURL;
@@ -154,7 +175,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                 trailerURL = NetworkUtils.buildDetailsURL(innerClassId);
                 runtimeURL = NetworkUtils.buildUrlForSpecificMovie(innerClassId);
                 reviewURL = NetworkUtils.buildUrlForReviews(innerClassId);
-                String data[] = new String[5];
+                String data[] = new String[6];
                 String trailerKey;
                 String runtime;
                 String reviews[];
@@ -165,11 +186,22 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                     trailerKey = OpenMovieJsonUtils.getTrailersFromJson(jsonTrailerData);
                     runtime = OpenMovieJsonUtils.getRuntimeFromJson(jsonRuntimeData);
                     reviews = OpenMovieJsonUtils.getReviewsFromJson(jsonReviewData);
+                    Cursor cursor = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                            null,
+                            MovieContract.MovieEntry.COLUMN_MOVIE_ID + "=?",
+                            new String[]{String.valueOf(movieId)},
+                            null);
+
                     data[0] = trailerKey;
                     data[1] = runtime;
                     data[2] = reviews[0];
                     data[3] = reviews[1];
                     data[4] = reviews[2];
+                    if (cursor.getCount() == 0)
+                        data[5] = "no";
+                    else
+                        data[5] = "yes";
+                    cursor.close();
                 } catch (Exception exception) {
                     Log.e("MovieDetails", exception.toString());
                 }
@@ -185,7 +217,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<String[]> loader, final String data[]) {
-        handleStarredMovie(false);
+        onStopLoading();
         mProgressBar.setVisibility(View.INVISIBLE);
         if (data[0] == null) {
             //No trailer found, hide trailers play button.
@@ -233,6 +265,11 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                     startActivity(openWebpageIntent);
                 }
             });
+        }
+        if (data[5].equals("no")) {
+            handleStarredMovie(true);
+        } else {
+            handleStarredMovie(false);
         }
     }
 }

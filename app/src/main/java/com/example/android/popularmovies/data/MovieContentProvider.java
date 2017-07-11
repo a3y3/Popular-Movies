@@ -79,7 +79,16 @@ public class MovieContentProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+        final SQLiteDatabase sqLiteDatabase = mMovieDBHelper.getWritableDatabase();
+        int match = mUriMatcher.match(uri);
+        switch (match){
+            case MOVIES:
+                return sqLiteDatabase.delete(MovieContract.MovieEntry.TABLE_NAME,
+                        s,
+                        strings);
+            default:
+                return 0;
+        }
     }
 
     @Override
