@@ -1,9 +1,11 @@
 package com.example.android.popularmovies;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.media.Image;
 import android.net.Uri;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.ContextCompat;
@@ -16,7 +18,9 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.android.popularmovies.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
@@ -30,10 +34,12 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
     String userRating;
     String synopsis;
     String imageURL;
+    String runtime;
     String releaseDate;
     private int LoaderId = 112;
+    private boolean starClicked;
 
-    private String MOVIE_ID_KEY = "MovieIdKey";
+    private final String MOVIE_ID_KEY = "MovieIdKey";
 
     private TextView titleTextView;
     private TextView userRatingTextView;
@@ -41,12 +47,12 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
     private TextView synopsisTextView;
     private ImageView movieArt;
     private ImageView trailerButton;
-    private ConstraintLayout constraintLayout;
     private ProgressBar mProgressBar;
     private TextView runtimeTextView;
     private TextView review1TextView;
     private TextView review2TextView;
     private TextView review3TextView;
+    private ImageView starMovie;
 
 
     @Override
@@ -66,13 +72,14 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
         releaseDateTextView = (TextView) findViewById(R.id.tv_release_date);
         synopsisTextView = (TextView) findViewById(R.id.tv_synopsis);
         movieArt = (ImageView) findViewById(R.id.iv_movie_art);
-        constraintLayout = (ConstraintLayout) findViewById(R.id.detail_layout);
-        mProgressBar = (ProgressBar)findViewById(R.id.pb_movie_details);
-        trailerButton = (ImageView)findViewById(R.id.trailer_iv_button);
-        runtimeTextView = (TextView)findViewById(R.id.tv_runtime);
-        review1TextView = (TextView)findViewById(R.id.tv_review1);
-        review2TextView = (TextView)findViewById(R.id.tv_review2);
-        review3TextView = (TextView)findViewById(R.id.tv_review3);
+        mProgressBar = (ProgressBar) findViewById(R.id.pb_movie_details);
+        trailerButton = (ImageView) findViewById(R.id.trailer_iv_button);
+        runtimeTextView = (TextView) findViewById(R.id.tv_runtime);
+        review1TextView = (TextView) findViewById(R.id.tv_review1);
+        review2TextView = (TextView) findViewById(R.id.tv_review2);
+        review3TextView = (TextView) findViewById(R.id.tv_review3);
+        starMovie = (ImageView) findViewById(R.id.star_movie);
+
 
         //Bundle for loader
         Bundle queryBundle = new Bundle();
@@ -81,7 +88,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
         userRatingTextView.setText(userRating);
         userRatingTextView.append("/10");
         synopsisTextView.setText(synopsis);
-        String releaseYear = releaseDate.substring(0,4);
+        String releaseYear = releaseDate.substring(0, 4);
         releaseDateTextView.setText(releaseYear);
         Picasso.with(this).load("http://image.tmdb.org/t/p/w185/" + imageURL).into(movieArt);
 
@@ -89,7 +96,41 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
-    private void onLoading(){
+    public void handleStarredMovie(boolean ifClicked) {
+        starClicked = ifClicked;
+        starMovie.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!starClicked) {
+                    starClicked = true;
+                    starMovie.setImageResource(R.drawable.ic_star_white_24px);
+                    ContentValues contentValues = new ContentValues();
+                    contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, id);
+                    contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_TITLE,title);
+                    contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_RELEASE_DATE, releaseDate);
+                    contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_USER_RATING, userRating);
+                    contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_RUNTIME, runtime);
+                    contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_SYNOPSIS,synopsis);
+                    contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_IMAGE_URL,imageURL);
+                    getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
+                    Snackbar.make(view, R.string.yay_offline, Snackbar.LENGTH_LONG)
+                            .setAction("Cancel", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    starClicked = false;
+                                    starMovie.setImageResource(R.drawable.ic_star_border_white_24px);
+                                }
+                            }).show();
+
+                } else {
+                    starClicked = false;
+                    starMovie.setImageResource(R.drawable.ic_star_border_white_24px);
+                }
+            }
+        });
+    }
+
+    private void onLoading() {
         mProgressBar.setVisibility(View.VISIBLE);
     }
 
@@ -124,11 +165,11 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                     trailerKey = OpenMovieJsonUtils.getTrailersFromJson(jsonTrailerData);
                     runtime = OpenMovieJsonUtils.getRuntimeFromJson(jsonRuntimeData);
                     reviews = OpenMovieJsonUtils.getReviewsFromJson(jsonReviewData);
-                    data[0]=trailerKey;
-                    data[1]=runtime;
-                    data[2]=reviews[0];
-                    data[3]=reviews[1];
-                    data[4]=reviews[2];
+                    data[0] = trailerKey;
+                    data[1] = runtime;
+                    data[2] = reviews[0];
+                    data[3] = reviews[1];
+                    data[4] = reviews[2];
                 } catch (Exception exception) {
                     Log.e("MovieDetails", exception.toString());
                 }
@@ -144,21 +185,23 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<String[]> loader, final String data[]) {
+        handleStarredMovie(false);
         mProgressBar.setVisibility(View.INVISIBLE);
-        if(data[0] == null){
+        if (data[0] == null) {
             //No trailer found, hide trailers play button.
             trailerButton.setVisibility(View.INVISIBLE);
         }
         trailerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent openInYoutube = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v="+data[0]));
+                Intent openInYoutube = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + data[0]));
                 startActivity(openInYoutube);
             }
         });
-        runtimeTextView.setText(data[1]);
+        runtime = data[1];
+        runtimeTextView.setText(runtime);
         runtimeTextView.append("min");
-        if(data[2]!=null){
+        if (data[2] != null) {
             review1TextView.setText(R.string.review_1);
             review1TextView.setTextColor(ContextCompat.getColor(this, R.color.linkColor));
             review1TextView.setOnClickListener(new View.OnClickListener() {
@@ -169,7 +212,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                 }
             });
         }
-        if(data[3]!=null){
+        if (data[3] != null) {
             review2TextView.setText(R.string.review_2);
             review2TextView.setTextColor(ContextCompat.getColor(this, R.color.linkColor));
             review2TextView.setOnClickListener(new View.OnClickListener() {
@@ -180,7 +223,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                 }
             });
         }
-        if(data[4]!=null){
+        if (data[4] != null) {
             review3TextView.setText(R.string.review_3);
             review3TextView.setTextColor(ContextCompat.getColor(this, R.color.linkColor));
             review3TextView.setOnClickListener(new View.OnClickListener() {
