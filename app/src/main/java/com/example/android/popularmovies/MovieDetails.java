@@ -1,12 +1,17 @@
 package com.example.android.popularmovies;
 
+import android.Manifest;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.Image;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.ContextCompat;
@@ -21,11 +26,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.DownloadListener;
 import com.example.android.popularmovies.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
@@ -39,6 +48,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
     String releaseDate;
     private int LoaderId = 112;
     private boolean starClicked;
+    protected static boolean isExternalStorageGranted;
 
     private final String MOVIE_ID_KEY = "MovieIdKey";
 
@@ -54,6 +64,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
     private TextView review2TextView;
     private TextView review3TextView;
     private ImageView starMovie;
+    private ConstraintLayout constraintLayout;
 
 
     @Override
@@ -80,6 +91,9 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
         review2TextView = (TextView) findViewById(R.id.tv_review2);
         review3TextView = (TextView) findViewById(R.id.tv_review3);
         starMovie = (ImageView) findViewById(R.id.star_movie);
+        constraintLayout = (ConstraintLayout)findViewById(R.id.detail_layout);
+
+        Picasso.with(MovieDetails.this).load("http://image.tmdb.org/t/p/w185/" + imageURL).into(movieArt);
 
 
         //Bundle for loader
@@ -91,7 +105,6 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
         synopsisTextView.setText(synopsis);
         String releaseYear = releaseDate.substring(0, 4);
         releaseDateTextView.setText(releaseYear);
-        Picasso.with(this).load("http://image.tmdb.org/t/p/w185/" + imageURL).into(movieArt);
 
         getSupportLoaderManager().initLoader(LoaderId, queryBundle, this);
 
@@ -123,10 +136,39 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                     contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_SYNOPSIS, synopsis);
                     contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_IMAGE_URL, imageURL);
                     getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
+
+
+                    if(isExternalStorageGranted) {
+                        AndroidNetworking.initialize(MovieDetails.this);
+                        String path = Environment.getExternalStorageDirectory() + "/Images123";
+                        File file = new File(path, movieId + ".png");
+                        if (file.length() == 0) {
+                            String fileName = movieId + ".png";
+                            AndroidNetworking.download("http://image.tmdb.org/t/p/w185/" + imageURL, path, fileName)
+                                    .build()
+                                    .startDownload(new DownloadListener() {
+                                        @Override
+                                        public void onDownloadComplete() {
+                                            Log.i("111", "Download Complete");
+                                        }
+
+                                        @Override
+                                        public void onError(ANError anError) {
+                                            Log.e("111", "Download Error" + anError.toString());
+                                        }
+                                    });
+                        } else {
+                            Log.i("111", "File exists");
+                        }
+                    }
+
                     Snackbar.make(view, R.string.yay_offline, Snackbar.LENGTH_LONG)
                             .setAction("Cancel", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
+                                    getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
+                                            MovieContract.MovieEntry.COLUMN_MOVIE_ID+"=?",
+                                            new String[]{movieId});
                                     starClicked = false;
                                     starMovie.setImageResource(R.drawable.ic_star_border_white_24px);
                                 }
@@ -151,7 +193,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
 
     private void onStopLoading() {
         titleTextView.setVisibility(View.VISIBLE);
-        mProgressBar.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.GONE);
         starMovie.setVisibility(View.VISIBLE);
     }
 
@@ -180,6 +222,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                 String runtime;
                 String reviews[];
                 try {
+
                     String jsonTrailerData = NetworkUtils.getResponseFromServer(trailerURL);
                     String jsonRuntimeData = NetworkUtils.getResponseFromServer(runtimeURL);
                     String jsonReviewData = NetworkUtils.getResponseFromServer(reviewURL);

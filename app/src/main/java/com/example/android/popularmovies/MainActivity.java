@@ -1,11 +1,19 @@
 package com.example.android.popularmovies;
 
 
+import android.Manifest;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,7 +29,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
     public ProgressBar progressBar;
     public RecyclerView recyclerView;
     public MovieAdapter movieAdapter;
-    private int LOADER_ID = 111;
+    private final int LOADER_ID = 111;
+    private final int PERMISSIONS_WRITE_STORAGE = 1111;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        checkPermissions();
 
         /*new AlertDialog.Builder(this)
                 .setTitle("Disclaimer")
@@ -49,6 +60,47 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
         recyclerView.setAdapter(movieAdapter);
         loadData();
 
+    }
+
+    public void checkPermissions(){
+        if(Build.VERSION.SDK_INT>=23){
+            if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                MovieDetails.isExternalStorageGranted = true;
+            }
+            else{
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PERMISSIONS_WRITE_STORAGE);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            MovieDetails.isExternalStorageGranted = true;
+        }
+        else{
+            new AlertDialog.Builder(this)
+                    .setTitle("Uh oh")
+                    .setMessage("We need that permission to save small movie thumbnails on your device " +
+                            "for offline functionality. The app will still work without that, but it won't" +
+                            "look pretty. Do you like pretty apps?")
+                    .setPositiveButton("Sure!", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            checkPermissions();
+                        }
+                    })
+                    .setNegativeButton("Nope", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            MovieDetails.isExternalStorageGranted = false;
+                        }
+                    })
+                    .show();
+        }
     }
 
     public void loadData(){

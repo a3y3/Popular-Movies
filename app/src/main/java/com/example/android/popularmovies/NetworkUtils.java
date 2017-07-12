@@ -3,6 +3,8 @@ package com.example.android.popularmovies;
 import android.net.Uri;
 import android.util.Log;
 
+import com.example.android.popularmovies.API.NetworkApiKey;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -16,7 +18,7 @@ import java.util.Scanner;
 
 public class NetworkUtils {
     //TODO insert API Key below
-    private final static String API_KEY = "1d551bb865d207218a13edf0a6f2f2ec";
+    private final static String API_KEY = NetworkApiKey.API_KEY;
     public final static String QUERY_PARAM = "api_key";
     public static String SORT_ORDER = "popular";
     public static String BASE_URL = "http://api.themoviedb.org/3/movie/"+NetworkUtils.SORT_ORDER;
