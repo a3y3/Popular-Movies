@@ -1,13 +1,18 @@
 package com.example.android.popularmovies;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.android.popularmovies.data.MovieContract;
 import com.squareup.picasso.Picasso;
+
+import java.io.File;
 
 /**
  * Created by Soham on 27-May-17.
@@ -22,6 +27,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     private final OnRecyclerClickListener onRecyclerClickListener;
     private String[] mImageUrls;
     private Context mContext;
+    private Cursor cursor;
+
     public interface OnRecyclerClickListener{
         void onClick(String id, String title, String synopsis, String imageURL, String releaseDate, String userRating);
     }
@@ -41,22 +48,43 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            String id = movieIdData[adapterPosition];
-            String title = movieTitleData[adapterPosition];
-            String userRating = userRatingData[adapterPosition];
-            String synopsis = synopsisData[adapterPosition];
-            String imageURL = mImageUrls[adapterPosition];
-            String releaseDate = releaseDateData[adapterPosition];
+            String id,title,userRating,synopsis,imageURL,releaseDate;
+            if(MainActivity.isConnectedToInternet) {
+                id = movieIdData[adapterPosition];
+                title = movieTitleData[adapterPosition];
+                userRating = userRatingData[adapterPosition];
+                synopsis = synopsisData[adapterPosition];
+                imageURL = mImageUrls[adapterPosition];
+                releaseDate = releaseDateData[adapterPosition];
+            }
+            else{
+                cursor.moveToPosition(adapterPosition);
+                id = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_ID));
+                title = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_TITLE));
+                userRating = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_USER_RATING));
+                synopsis = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_SYNOPSIS));
+                imageURL = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_IMAGE_URL));
+                releaseDate = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_RELEASE_DATE));
+            }
             onRecyclerClickListener.onClick(id, title, synopsis, imageURL, releaseDate, userRating);
         }
     }
 
     @Override
     public int getItemCount() {
-        if(mImageUrls == null){
-            return 0;
+        if(MainActivity.isConnectedToInternet) {
+            if (mImageUrls == null) {
+                return 0;
+            }
+            return mImageUrls.length;
         }
-        return mImageUrls.length;
+        else{
+            if(cursor == null){
+                return 0;
+            }
+            Log.d("112","Returned "+cursor.getCount()+" in getCount()");
+            return cursor.getCount();
+        }
     }
 
     @Override
@@ -67,8 +95,23 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
 
     @Override
     public void onBindViewHolder(MovieAdapterViewHolder holder, int position) {
-        String URL = mImageUrls[position];
-        Picasso.with(mContext).load("http://image.tmdb.org/t/p/w185/"+URL).into(holder.imageView);
+        if(MainActivity.isConnectedToInternet){
+            String URL = mImageUrls[position];
+            Picasso.with(mContext).load("http://image.tmdb.org/t/p/w185/"+URL).into(holder.imageView);
+        }
+        else{
+            cursor.moveToPosition(position);
+            String movieId = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_ID));
+            String path = MovieDetails.PATH_TO_MOVIE_IMAGE+movieId+".png";
+            File f = new File(path);
+            try{
+                Picasso.with(mContext).load(f).into(holder.imageView);
+            }
+            catch (Exception e){
+                Log.d("112","EXCEPTION OCCURERD WITH PICASSO"+e.toString());
+            }
+            Log.d("112","Loading "+MovieDetails.PATH_TO_MOVIE_IMAGE+movieId+".png");
+        }
     }
 
     public void setImageString(String [] imageString){
@@ -94,5 +137,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
 
     public void setReleaseDateData(String[] releaseDateData){
         this.releaseDateData = releaseDateData;
+    }
+    public void setCursor(Cursor c){
+        cursor = c;
+        cursor.moveToFirst();
     }
 }

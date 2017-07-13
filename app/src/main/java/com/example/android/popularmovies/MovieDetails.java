@@ -51,6 +51,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
     protected static boolean isExternalStorageGranted;
 
     private final String MOVIE_ID_KEY = "MovieIdKey";
+    public final static String PATH_TO_MOVIE_IMAGE = Environment.getExternalStorageDirectory() + "/Popular_Movies/Images/";
 
     private TextView titleTextView;
     private TextView userRatingTextView;
@@ -64,7 +65,6 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
     private TextView review2TextView;
     private TextView review3TextView;
     private ImageView starMovie;
-    private ConstraintLayout constraintLayout;
 
 
     @Override
@@ -91,7 +91,6 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
         review2TextView = (TextView) findViewById(R.id.tv_review2);
         review3TextView = (TextView) findViewById(R.id.tv_review3);
         starMovie = (ImageView) findViewById(R.id.star_movie);
-        constraintLayout = (ConstraintLayout)findViewById(R.id.detail_layout);
 
         Picasso.with(MovieDetails.this).load("http://image.tmdb.org/t/p/w185/" + imageURL).into(movieArt);
 
@@ -138,9 +137,9 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                     getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
 
 
-                    if(isExternalStorageGranted) {
+                    if(isExternalStorageGranted && MainActivity.isConnectedToInternet) {
                         AndroidNetworking.initialize(MovieDetails.this);
-                        String path = Environment.getExternalStorageDirectory() + "/Images123";
+                        String path = PATH_TO_MOVIE_IMAGE;
                         File file = new File(path, movieId + ".png");
                         if (file.length() == 0) {
                             String fileName = movieId + ".png";
@@ -149,16 +148,15 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                                     .startDownload(new DownloadListener() {
                                         @Override
                                         public void onDownloadComplete() {
-                                            Log.i("111", "Download Complete");
+                                            Log.i("MovieDetails", "Download Complete");
                                         }
-
                                         @Override
                                         public void onError(ANError anError) {
-                                            Log.e("111", "Download Error" + anError.toString());
+                                            Log.e("MovieDetais", "Download Error" + anError.toString());
                                         }
                                     });
                         } else {
-                            Log.i("111", "File exists");
+                            Log.i("MovieDetails", "File exists");
                         }
                     }
 

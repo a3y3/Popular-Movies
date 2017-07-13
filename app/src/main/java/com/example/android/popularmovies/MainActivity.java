@@ -2,10 +2,15 @@ package com.example.android.popularmovies;
 
 
 import android.Manifest;
-import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,14 +28,20 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
+
+import com.example.android.popularmovies.data.MovieContract;
+
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRecyclerClickListener, LoaderManager.LoaderCallbacks<String[][]>{
+public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRecyclerClickListener, LoaderManager.LoaderCallbacks<String[][]> {
     public ProgressBar progressBar;
     public RecyclerView recyclerView;
     public MovieAdapter movieAdapter;
     private final int LOADER_ID = 111;
     private final int PERMISSIONS_WRITE_STORAGE = 1111;
+    public static boolean isConnectedToInternet = false;
+    private Cursor mCursor;
+    BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +51,26 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
         setSupportActionBar(toolbar);
 
         checkPermissions();
+
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+                if (networkInfo != null && networkInfo.isConnected()) {
+                    MainActivity.isConnectedToInternet = true;
+                    loadData(true);
+                    ///Log.e("ConnectivityReceiver", "Connection established");
+                }
+                else {
+                    loadData(false);
+                    isConnectedToInternet = false;
+                }
+            }
+        };
+        registerReceiver(broadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+
 
         /*new AlertDialog.Builder(this)
                 .setTitle("Disclaimer")
@@ -51,23 +82,21 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
                     }
                 })
                 .show();*/
-        progressBar = (ProgressBar)findViewById(R.id.pb_load);
-        recyclerView = (RecyclerView)findViewById(R.id.rv_display);
+        progressBar = (ProgressBar) findViewById(R.id.pb_load);
+        recyclerView = (RecyclerView) findViewById(R.id.rv_display);
         movieAdapter = new MovieAdapter(this, this);
         GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(movieAdapter);
-        loadData();
-
+        loadData(isConnectedToInternet);
     }
 
-    public void checkPermissions(){
-        if(Build.VERSION.SDK_INT>=23){
-            if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+    public void checkPermissions() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 MovieDetails.isExternalStorageGranted = true;
-            }
-            else{
+            } else {
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         PERMISSIONS_WRITE_STORAGE);
@@ -78,15 +107,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             MovieDetails.isExternalStorageGranted = true;
-        }
-        else{
+        } else {
             new AlertDialog.Builder(this)
                     .setTitle("Uh oh")
-                    .setMessage("We need that permission to save small movie thumbnails on your device " +
-                            "for offline functionality. The app will still work without that, but it won't" +
-                            "look pretty. Do you like pretty apps?")
+                    .setMessage(R.string.dialog_write_permission_rejected)
                     .setPositiveButton("Sure!", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -103,7 +129,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
         }
     }
 
-    public void loadData(){
+    public void loadData(boolean connection) {
+        isConnectedToInternet = connection;
+        LoaderManager loaderManager = getSupportLoaderManager();
+        if (loaderManager.getLoader(LOADER_ID) != null) {
+            getSupportLoaderManager().restartLoader(LOADER_ID, null, this);
+        }
         getSupportLoaderManager().initLoader(LOADER_ID, null, this);
     }
 
@@ -116,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
             String synopsisData[];
             String userRatingData[];
             String releaseDateData[];
+
             @Override
             protected void onStartLoading() {
                 super.onStartLoading();
@@ -127,19 +159,28 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
             public String[][] loadInBackground() {
                 URL url = NetworkUtils.buildURL();
                 String results;
-                try{
-                    results = NetworkUtils.getResponseFromServer(url);
-                    movieIdData = OpenMovieJsonUtils.getMovieIdFromJson(results);
-                    movieTitleData = OpenMovieJsonUtils.getTitleFromJson(results);
-                    imageURLs = OpenMovieJsonUtils.getImageUrlsFromJson(results);
-                    synopsisData = OpenMovieJsonUtils.getSynopsisFromJson(results);
-                    userRatingData = OpenMovieJsonUtils.getUserRatingFromJson(results);
-                    releaseDateData = OpenMovieJsonUtils.getReleaseDateFromJson(results);
+                if (isConnectedToInternet) {
+                    try {
+                        results = NetworkUtils.getResponseFromServer(url);
+                        movieIdData = OpenMovieJsonUtils.getMovieIdFromJson(results);
+                        movieTitleData = OpenMovieJsonUtils.getTitleFromJson(results);
+                        imageURLs = OpenMovieJsonUtils.getImageUrlsFromJson(results);
+                        synopsisData = OpenMovieJsonUtils.getSynopsisFromJson(results);
+                        userRatingData = OpenMovieJsonUtils.getUserRatingFromJson(results);
+                        releaseDateData = OpenMovieJsonUtils.getReleaseDateFromJson(results);
 
-                    return new String[][]{movieIdData,movieTitleData,imageURLs,synopsisData,userRatingData,releaseDateData};
-                }
-                catch(Exception e) {
-                    Log.e("MainActivity", "ERROR OCCURRED!" + e.toString());
+                        return new String[][]{movieIdData, movieTitleData, imageURLs, synopsisData, userRatingData, releaseDateData};
+                    } catch (Exception e) {
+                        Log.e("MainActivity", "ERROR OCCURRED!" + e.toString());
+                        return null;
+                    }
+                } else {
+                    mCursor = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                            null,
+                            null,
+                            null,
+                            null);
+                    movieAdapter.setCursor(mCursor);
                     return null;
                 }
             }
@@ -154,12 +195,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
     @Override
     public void onLoadFinished(Loader<String[][]> loader, String data[][]) {
         progressBar.setVisibility(View.GONE);
-        movieAdapter.setMovieIdData(data[0]);
-        movieAdapter.setTitleData(data[1]);
-        movieAdapter.setImageString(data[2]);
-        movieAdapter.setSynopsisData(data[3]);
-        movieAdapter.setUserRatingData(data[4]);
-        movieAdapter.setReleaseDateData(data[5]);
+        if (isConnectedToInternet) {
+            movieAdapter.setMovieIdData(data[0]);
+            movieAdapter.setTitleData(data[1]);
+            movieAdapter.setImageString(data[2]);
+            movieAdapter.setSynopsisData(data[3]);
+            movieAdapter.setUserRatingData(data[4]);
+            movieAdapter.setReleaseDateData(data[5]);
+        }
 
         recyclerView.setAdapter(movieAdapter);
     }
@@ -167,11 +210,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
     @Override
     public void onClick(String id, String title, String synopsis, String imageURL, String releaseDate, String userRating) {
         Intent intent = new Intent(this, MovieDetails.class);
-        intent.putExtra("id",id);
-        intent.putExtra("title",title);
+        intent.putExtra("id", id);
+        intent.putExtra("title", title);
         intent.putExtra("userRating", userRating);
-        intent.putExtra("imageURL",imageURL);
-        intent.putExtra("synopsis",synopsis);
+        intent.putExtra("imageURL", imageURL);
+        intent.putExtra("synopsis", synopsis);
         intent.putExtra("releaseDate", releaseDate);
         startActivity(intent);
     }
@@ -194,17 +237,25 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
         if (id == R.id.action_sort_popularity) {
             movieAdapter.setImageString(null);
             NetworkUtils.SORT_ORDER = "popular";
-            loadData();
+            loadData(MainActivity.isConnectedToInternet);
             return true;
         }
         if (id == R.id.action_sort_rating) {
             movieAdapter.setImageString(null);
             NetworkUtils.SORT_ORDER = "top_rated";
-            loadData();
+            loadData(MainActivity.isConnectedToInternet);
             return true;
 
         }
-
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(broadcastReceiver);
+        if(mCursor!=null){
+            mCursor.close();
+        }
     }
 }
