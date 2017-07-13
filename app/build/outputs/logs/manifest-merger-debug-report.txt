@@ -1,0 +1,142 @@
+-- Merging decision tree log ---
+manifest
+ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:2:1-36:12
+	package
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:3:5-48
+		INJECTED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml
+		INJECTED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml
+	android:versionName
+		INJECTED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml
+		INJECTED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:2:11-69
+	android:versionCode
+		INJECTED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml
+		INJECTED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml
+uses-permission#android.permission.INTERNET
+ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:5:5-67
+	android:name
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:5:22-64
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:6:5-80
+	android:name
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:6:22-78
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:7:5-78
+	android:name
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:7:22-76
+application
+ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:10:5-34:19
+MERGED from [com.android.support:design:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\5fc4ea7155db2e7aa1be86c27175317a68f98fbe\output\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:transition:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\d26286f03cfb4b5b4fc446ad55f976823524d819\output\AndroidManifest.xml:26:5-20
+MERGED from [com.android.support.constraint:constraint-layout:1.0.2] C:\Users\Soham\.android\build-cache\45999cb622515c105ef04adf1a6a1fb0cc45be9d\output\AndroidManifest.xml:9:5-20
+MERGED from [com.android.support:appcompat-v7:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\639a32c4923d26cc10985e25b591ce7786d55785\output\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:animated-vector-drawable:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\37882adc63a8237a434e74054dbdc5ff6d883347\output\AndroidManifest.xml:26:5-20
+MERGED from [com.android.support:support-vector-drawable:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\6dca60efd6c48113e1c11d1d9e78df74d0af01a2\output\AndroidManifest.xml:26:5-20
+MERGED from [com.firebase:firebase-jobdispatcher:0.5.2] C:\Users\Soham\.android\build-cache\595500b9d6644537a4f9930783cb09bda931e6f0\output\AndroidManifest.xml:26:5-40:19
+MERGED from [com.android.support:support-v4:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\ed881840780353a8e84b5a994793c91ab9256385\output\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-media-compat:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\b0d32563054836fa67f9ecf6f7da2c31ccf3cde0\output\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-fragment:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\2d71186c49d2ba561b1ac294b7c344a7f793cc14\output\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-core-ui:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\fc0dcb74dcd29a959ea475152c8778f4932c135e\output\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-core-utils:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\0aa2b8897b0dea403375dabdcc81253441093b66\output\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-compat:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\bc3ab5e4859a080b1adfa6614a7b8d2d963928ef\output\AndroidManifest.xml:29:5-20
+	android:label
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:13:9-41
+	android:supportsRtl
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:15:9-35
+	android:roundIcon
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:14:9-54
+	android:allowBackup
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:11:9-35
+	android:icon
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:12:9-43
+	android:theme
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:16:9-40
+activity#com.example.android.popularmovies.MainActivity
+ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:17:9-26:20
+	android:label
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:19:13-45
+	android:theme
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:20:13-56
+	android:name
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:18:13-41
+intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
+ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:21:13-25:29
+action#android.intent.action.MAIN
+ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:22:17-69
+	android:name
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:22:25-66
+category#android.intent.category.LAUNCHER
+ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:24:17-77
+	android:name
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:24:27-74
+activity#com.example.android.popularmovies.MovieDetails
+ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:27:9-29:20
+	android:parentActivityName
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:28:21-63
+	android:name
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:27:19-47
+provider#com.example.android.popularmovies.data.MovieContentProvider
+ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:30:9-33:39
+	android:authorities
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:31:13-68
+	android:exported
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:33:13-37
+	android:name
+		ADDED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml:32:13-54
+uses-sdk
+INJECTED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
+MERGED from [com.android.support:design:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\5fc4ea7155db2e7aa1be86c27175317a68f98fbe\output\AndroidManifest.xml:21:5-23:62
+MERGED from [com.android.support:recyclerview-v7:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\0f5b1f9179c1a2f384361ff7ed14299a25ca9675\output\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:transition:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\d26286f03cfb4b5b4fc446ad55f976823524d819\output\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support.constraint:constraint-layout:1.0.2] C:\Users\Soham\.android\build-cache\45999cb622515c105ef04adf1a6a1fb0cc45be9d\output\AndroidManifest.xml:5:5-7:41
+MERGED from [com.android.support:appcompat-v7:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\639a32c4923d26cc10985e25b591ce7786d55785\output\AndroidManifest.xml:21:5-23:78
+MERGED from [com.android.support:animated-vector-drawable:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\37882adc63a8237a434e74054dbdc5ff6d883347\output\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\6dca60efd6c48113e1c11d1d9e78df74d0af01a2\output\AndroidManifest.xml:20:5-44
+MERGED from [com.amitshekhar.android:android-networking:1.0.0] C:\Users\Soham\.android\build-cache\bc1be5ea5084db59047dc0e58d9e24306604ddea\output\AndroidManifest.xml:23:5-25:41
+MERGED from [com.firebase:firebase-jobdispatcher:0.5.2] C:\Users\Soham\.android\build-cache\595500b9d6644537a4f9930783cb09bda931e6f0\output\AndroidManifest.xml:22:5-24:41
+MERGED from [com.android.support:support-v4:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\ed881840780353a8e84b5a994793c91ab9256385\output\AndroidManifest.xml:21:5-23:54
+MERGED from [com.android.support:support-media-compat:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\b0d32563054836fa67f9ecf6f7da2c31ccf3cde0\output\AndroidManifest.xml:21:5-23:63
+MERGED from [com.android.support:support-fragment:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\2d71186c49d2ba561b1ac294b7c344a7f793cc14\output\AndroidManifest.xml:21:5-23:60
+MERGED from [com.android.support:support-core-ui:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\fc0dcb74dcd29a959ea475152c8778f4932c135e\output\AndroidManifest.xml:21:5-23:58
+MERGED from [com.android.support:support-core-utils:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\0aa2b8897b0dea403375dabdcc81253441093b66\output\AndroidManifest.xml:21:5-23:61
+MERGED from [com.android.support:support-compat:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\bc3ab5e4859a080b1adfa6614a7b8d2d963928ef\output\AndroidManifest.xml:21:5-23:58
+	tools:overrideLibrary
+		ADDED from [com.android.support:design:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\5fc4ea7155db2e7aa1be86c27175317a68f98fbe\output\AndroidManifest.xml:23:9-59
+	android:targetSdkVersion
+		INJECTED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml
+		INJECTED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml
+		INJECTED from D:\AndroidDeveloperNanoDegree\PopularMovies\app\src\main\AndroidManifest.xml
+meta-data#android.support.VERSION
+ADDED from [com.android.support:design:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\5fc4ea7155db2e7aa1be86c27175317a68f98fbe\output\AndroidManifest.xml:25:5-27:41
+MERGED from [com.android.support:recyclerview-v7:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\0f5b1f9179c1a2f384361ff7ed14299a25ca9675\output\AndroidManifest.xml:22:5-24:41
+MERGED from [com.android.support:transition:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\d26286f03cfb4b5b4fc446ad55f976823524d819\output\AndroidManifest.xml:22:5-24:41
+MERGED from [com.android.support:appcompat-v7:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\639a32c4923d26cc10985e25b591ce7786d55785\output\AndroidManifest.xml:25:5-27:41
+MERGED from [com.android.support:animated-vector-drawable:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\37882adc63a8237a434e74054dbdc5ff6d883347\output\AndroidManifest.xml:22:5-24:41
+MERGED from [com.android.support:support-vector-drawable:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\6dca60efd6c48113e1c11d1d9e78df74d0af01a2\output\AndroidManifest.xml:22:5-24:41
+MERGED from [com.android.support:support-v4:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\ed881840780353a8e84b5a994793c91ab9256385\output\AndroidManifest.xml:25:5-27:41
+MERGED from [com.android.support:support-media-compat:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\b0d32563054836fa67f9ecf6f7da2c31ccf3cde0\output\AndroidManifest.xml:25:5-27:41
+MERGED from [com.android.support:support-fragment:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\2d71186c49d2ba561b1ac294b7c344a7f793cc14\output\AndroidManifest.xml:25:5-27:41
+MERGED from [com.android.support:support-core-ui:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\fc0dcb74dcd29a959ea475152c8778f4932c135e\output\AndroidManifest.xml:25:5-27:41
+MERGED from [com.android.support:support-core-utils:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\0aa2b8897b0dea403375dabdcc81253441093b66\output\AndroidManifest.xml:25:5-27:41
+MERGED from [com.android.support:support-compat:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\bc3ab5e4859a080b1adfa6614a7b8d2d963928ef\output\AndroidManifest.xml:25:5-27:41
+	android:value
+		ADDED from [com.android.support:design:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\5fc4ea7155db2e7aa1be86c27175317a68f98fbe\output\AndroidManifest.xml:27:9-38
+	android:name
+		ADDED from [com.android.support:design:26.0.0-alpha1] C:\Users\Soham\.android\build-cache\5fc4ea7155db2e7aa1be86c27175317a68f98fbe\output\AndroidManifest.xml:26:9-47
+service#com.firebase.jobdispatcher.GooglePlayReceiver
+ADDED from [com.firebase:firebase-jobdispatcher:0.5.2] C:\Users\Soham\.android\build-cache\595500b9d6644537a4f9930783cb09bda931e6f0\output\AndroidManifest.xml:32:9-39:19
+	android:exported
+		ADDED from [com.firebase:firebase-jobdispatcher:0.5.2] C:\Users\Soham\.android\build-cache\595500b9d6644537a4f9930783cb09bda931e6f0\output\AndroidManifest.xml:34:13-36
+	android:permission
+		ADDED from [com.firebase:firebase-jobdispatcher:0.5.2] C:\Users\Soham\.android\build-cache\595500b9d6644537a4f9930783cb09bda931e6f0\output\AndroidManifest.xml:35:13-93
+	android:name
+		ADDED from [com.firebase:firebase-jobdispatcher:0.5.2] C:\Users\Soham\.android\build-cache\595500b9d6644537a4f9930783cb09bda931e6f0\output\AndroidManifest.xml:33:13-73
+intent-filter#com.google.android.gms.gcm.ACTION_TASK_READY
+ADDED from [com.firebase:firebase-jobdispatcher:0.5.2] C:\Users\Soham\.android\build-cache\595500b9d6644537a4f9930783cb09bda931e6f0\output\AndroidManifest.xml:36:13-38:29
+action#com.google.android.gms.gcm.ACTION_TASK_READY
+ADDED from [com.firebase:firebase-jobdispatcher:0.5.2] C:\Users\Soham\.android\build-cache\595500b9d6644537a4f9930783cb09bda931e6f0\output\AndroidManifest.xml:37:17-87
+	android:name
+		ADDED from [com.firebase:firebase-jobdispatcher:0.5.2] C:\Users\Soham\.android\build-cache\595500b9d6644537a4f9930783cb09bda931e6f0\output\AndroidManifest.xml:37:25-84
