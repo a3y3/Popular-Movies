@@ -15,4 +15,5 @@
     <string name="yay_offline">Yay! Now you can view these details offline.</string>
     <string name="dialog_write_permission_rejected">We need that permission to save small movie thumbnails on your device for offline functionality. The app will still work without that, but it won\'t look pretty. Do you like pretty apps?</string>
     <string name="no_favourite_movies">No favourite movies :(</string>
+    <string name="show_favourites">Show favourites</string>
 </resources>

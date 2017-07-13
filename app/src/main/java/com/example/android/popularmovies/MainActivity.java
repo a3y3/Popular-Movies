@@ -47,6 +47,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
     BroadcastReceiver broadcastReceiver;
     private boolean connectionWasDown = false;
     private static Snackbar noInternetSnackbar;
+    private GridLayoutManager gridLayoutManager;
+    private final String RECYCLER_POSITION_KEY = "recycler_position_key";
+    private int scrollPosition;
+    public  static boolean simulatedConnection = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +77,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
                     if(connectionWasDown)
                         Snackbar.make(getWindow().getDecorView().getRootView(), "Connection Restored", Snackbar.LENGTH_SHORT).show();
                     noFavouritesTextView.setVisibility(View.INVISIBLE);
-                    loadData(true);
+                    isConnectedToInternet = true;
+                    loadData();
                     if(noInternetSnackbar!=null){
                         noInternetSnackbar.dismiss();
                     }
@@ -83,18 +88,18 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
                     noInternetSnackbar = Snackbar.make(getWindow().getDecorView().getRootView(),"Offline functionality",Snackbar.LENGTH_INDEFINITE);
                     noInternetSnackbar.show();
                     connectionWasDown = true;
-                    loadData(false);
                     isConnectedToInternet = false;
+                    loadData();
                 }
             }
         };
         registerReceiver(broadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
 
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
-        recyclerView.setLayoutManager(layoutManager);
+        gridLayoutManager = new GridLayoutManager(this, 2);
+        recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(movieAdapter);
-        loadData(isConnectedToInternet);
+        loadData();
     }
 
     public void checkPermissions() {
@@ -135,8 +140,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
         }
     }
 
-    public void loadData(boolean connection) {
-        isConnectedToInternet = connection;
+    public void loadData() {
         LoaderManager loaderManager = getSupportLoaderManager();
         if (loaderManager.getLoader(LOADER_ID) != null) {
             getSupportLoaderManager().restartLoader(LOADER_ID, null, this);
@@ -165,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
             public String[][] loadInBackground() {
                 URL url = NetworkUtils.buildURL();
                 String results;
-                if (isConnectedToInternet) {
+                if (isConnectedToInternet && simulatedConnection) {
                     try {
                         results = NetworkUtils.getResponseFromServer(url);
                         movieIdData = OpenMovieJsonUtils.getMovieIdFromJson(results);
@@ -211,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
     @Override
     public void onLoadFinished(Loader<String[][]> loader, String data[][]) {
         progressBar.setVisibility(View.GONE);
-        if (isConnectedToInternet) {
+        if (isConnectedToInternet && simulatedConnection) {
             movieAdapter.setMovieIdData(data[0]);
             movieAdapter.setTitleData(data[1]);
             movieAdapter.setImageString(data[2]);
@@ -221,8 +225,25 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
         }
 
         recyclerView.setAdapter(movieAdapter);
+        recyclerView.scrollToPosition(scrollPosition);
+
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        int position = gridLayoutManager.findFirstVisibleItemPosition();
+        outState.putInt(RECYCLER_POSITION_KEY, position);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if(savedInstanceState!=null && savedInstanceState.containsKey(RECYCLER_POSITION_KEY)){
+            recyclerView.scrollToPosition(savedInstanceState.getInt(RECYCLER_POSITION_KEY));
+            scrollPosition = savedInstanceState.getInt(RECYCLER_POSITION_KEY);
+        }
+    }
 
     @Override
     public void onClick(String id, String title, String synopsis, String imageURL, String releaseDate, String userRating) {
@@ -254,15 +275,23 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
         if (id == R.id.action_sort_popularity) {
             movieAdapter.setImageString(null);
             NetworkUtils.SORT_ORDER = "popular";
-            loadData(MainActivity.isConnectedToInternet);
+            simulatedConnection = true;
+            loadData();
             return true;
         }
         if (id == R.id.action_sort_rating) {
             movieAdapter.setImageString(null);
             NetworkUtils.SORT_ORDER = "top_rated";
-            loadData(MainActivity.isConnectedToInternet);
+            simulatedConnection = true;
+            loadData();
             return true;
+        }
 
+        if(id == R.id.action_sort_favourites){
+            movieAdapter.setImageString(null);
+            simulatedConnection = false;
+            loadData();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -270,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
     @Override
     protected void onResume() {
         super.onResume();
-        loadData(isConnectedToInternet);
+        loadData();
     }
 
     @Override

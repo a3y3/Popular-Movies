@@ -19,7 +19,7 @@
         android:text="@string/no_favourite_movies"
         android:textSize="45sp"
         android:gravity="center"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:textColor="#D5D5D5"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"

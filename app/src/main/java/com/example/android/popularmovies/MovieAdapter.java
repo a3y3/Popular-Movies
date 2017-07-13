@@ -51,7 +51,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
             String id,title,userRating,synopsis,imageURL,releaseDate;
-            if(MainActivity.isConnectedToInternet) {
+            if(MainActivity.isConnectedToInternet && MainActivity.simulatedConnection) {
                 id = movieIdData[adapterPosition];
                 title = movieTitleData[adapterPosition];
                 userRating = userRatingData[adapterPosition];
@@ -74,7 +74,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
 
     @Override
     public int getItemCount() {
-        if(MainActivity.isConnectedToInternet) {
+        if(MainActivity.isConnectedToInternet && MainActivity.simulatedConnection) {
             if (mImageUrls == null) {
                 return 0;
             }
@@ -97,7 +97,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
 
     @Override
     public void onBindViewHolder(MovieAdapterViewHolder holder, int position) {
-        if(MainActivity.isConnectedToInternet){
+        if(MainActivity.isConnectedToInternet && MainActivity.simulatedConnection){
             String URL = mImageUrls[position];
             Picasso.with(mContext).load("http://image.tmdb.org/t/p/w185/"+URL).into(holder.imageView);
         }
