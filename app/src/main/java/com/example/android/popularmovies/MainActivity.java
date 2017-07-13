@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
     public static boolean isConnectedToInternet = false;
     private Cursor mCursor;
     BroadcastReceiver broadcastReceiver;
+    private boolean connectionWasDown = false;
     private static Snackbar noInternetSnackbar;
 
     @Override
@@ -69,7 +70,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
 
                 if (networkInfo != null && networkInfo.isConnected()) {
                     MainActivity.isConnectedToInternet = true;
-                    Snackbar.make(getWindow().getDecorView().getRootView(), "Connection Restored", Snackbar.LENGTH_SHORT).show();
+                    if(connectionWasDown)
+                        Snackbar.make(getWindow().getDecorView().getRootView(), "Connection Restored", Snackbar.LENGTH_SHORT).show();
                     noFavouritesTextView.setVisibility(View.INVISIBLE);
                     loadData(true);
                     if(noInternetSnackbar!=null){
@@ -80,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
                 else {
                     noInternetSnackbar = Snackbar.make(getWindow().getDecorView().getRootView(),"Offline functionality",Snackbar.LENGTH_INDEFINITE);
                     noInternetSnackbar.show();
+                    connectionWasDown = true;
                     loadData(false);
                     isConnectedToInternet = false;
                 }
@@ -219,6 +222,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
 
         recyclerView.setAdapter(movieAdapter);
     }
+
 
     @Override
     public void onClick(String id, String title, String synopsis, String imageURL, String releaseDate, String userRating) {
