@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
 
                 if (networkInfo != null && networkInfo.isConnected()) {
                     MainActivity.isConnectedToInternet = true;
+                    Snackbar.make(getWindow().getDecorView().getRootView(), "Connection Restored", Snackbar.LENGTH_SHORT).show();
                     noFavouritesTextView.setVisibility(View.INVISIBLE);
                     loadData(true);
                     if(noInternetSnackbar!=null){
@@ -163,7 +164,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
                 String results;
                 if (isConnectedToInternet) {
                     try {
-                        progressBar.setVisibility(View.VISIBLE);
                         results = NetworkUtils.getResponseFromServer(url);
                         movieIdData = OpenMovieJsonUtils.getMovieIdFromJson(results);
                         movieTitleData = OpenMovieJsonUtils.getTitleFromJson(results);
@@ -184,7 +184,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
                             null,
                             null);
                     if(mCursor.getCount() == 0){
-                        noFavouritesTextView.setVisibility(View.VISIBLE);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                noFavouritesTextView.setVisibility(View.VISIBLE);
+                            }
+                        });
                     }else{
                         noFavouritesTextView.setVisibility(View.INVISIBLE);
                     }
@@ -256,6 +261,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadData(isConnectedToInternet);
     }
 
     @Override

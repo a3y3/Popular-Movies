@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.popularmovies.data.MovieContract;
+import com.example.android.popularmovies.data.MovieDBHelper;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -100,13 +101,17 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
             String URL = mImageUrls[position];
             Picasso.with(mContext).load("http://image.tmdb.org/t/p/w185/"+URL).into(holder.imageView);
         }
-        else{
+        else {
             cursor.moveToPosition(position);
             String movieId = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_ID));
-            String path = MovieDetails.PATH_TO_MOVIE_IMAGE+movieId+".png";
+            String path = MovieDetails.PATH_TO_MOVIE_IMAGE + movieId + ".png";
             File f = new File(path);
-            Picasso.with(mContext).load(f).into(holder.imageView);
-            Log.d("112","Loading "+MovieDetails.PATH_TO_MOVIE_IMAGE+movieId+".png");
+            if (MovieDetails.isExternalStorageGranted) {
+                Picasso.with(mContext).load(f).into(holder.imageView);
+                Log.d("112", "Loading " + MovieDetails.PATH_TO_MOVIE_IMAGE + movieId + ".png");
+            } else {
+                Picasso.with(mContext).load(R.drawable.ugly_movie).into(holder.imageView);
+            }
         }
     }
 
