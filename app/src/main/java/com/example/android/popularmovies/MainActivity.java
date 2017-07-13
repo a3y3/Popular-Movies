@@ -14,6 +14,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -28,6 +29,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.android.popularmovies.data.MovieContract;
 
@@ -37,11 +39,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
     public ProgressBar progressBar;
     public RecyclerView recyclerView;
     public MovieAdapter movieAdapter;
+    private TextView noFavouritesTextView;
     private final int LOADER_ID = 111;
     private final int PERMISSIONS_WRITE_STORAGE = 1111;
     public static boolean isConnectedToInternet = false;
     private Cursor mCursor;
     BroadcastReceiver broadcastReceiver;
+    private static Snackbar noInternetSnackbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +56,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
 
         checkPermissions();
 
+        progressBar = (ProgressBar) findViewById(R.id.pb_load);
+        recyclerView = (RecyclerView) findViewById(R.id.rv_display);
+        movieAdapter = new MovieAdapter(this, this);
+        noFavouritesTextView = (TextView)findViewById(R.id.tv_no_favourites);
+
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -60,10 +69,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
 
                 if (networkInfo != null && networkInfo.isConnected()) {
                     MainActivity.isConnectedToInternet = true;
+                    noFavouritesTextView.setVisibility(View.INVISIBLE);
                     loadData(true);
+                    if(noInternetSnackbar!=null){
+                        noInternetSnackbar.dismiss();
+                    }
                     ///Log.e("ConnectivityReceiver", "Connection established");
                 }
                 else {
+                    noInternetSnackbar = Snackbar.make(getWindow().getDecorView().getRootView(),"Offline functionality",Snackbar.LENGTH_INDEFINITE);
+                    noInternetSnackbar.show();
                     loadData(false);
                     isConnectedToInternet = false;
                 }
@@ -71,20 +86,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
         };
         registerReceiver(broadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
 
-
-        /*new AlertDialog.Builder(this)
-                .setTitle("Disclaimer")
-                .setMessage(R.string.header_string)
-                .setPositiveButton("I know!", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                })
-                .show();*/
-        progressBar = (ProgressBar) findViewById(R.id.pb_load);
-        recyclerView = (RecyclerView) findViewById(R.id.rv_display);
-        movieAdapter = new MovieAdapter(this, this);
         GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
@@ -126,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
                         }
                     })
                     .show();
+            MovieDetails.isExternalStorageGranted = false;
         }
     }
 
@@ -161,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
                 String results;
                 if (isConnectedToInternet) {
                     try {
+                        progressBar.setVisibility(View.VISIBLE);
                         results = NetworkUtils.getResponseFromServer(url);
                         movieIdData = OpenMovieJsonUtils.getMovieIdFromJson(results);
                         movieTitleData = OpenMovieJsonUtils.getTitleFromJson(results);
@@ -180,6 +183,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnRe
                             null,
                             null,
                             null);
+                    if(mCursor.getCount() == 0){
+                        noFavouritesTextView.setVisibility(View.VISIBLE);
+                    }else{
+                        noFavouritesTextView.setVisibility(View.INVISIBLE);
+                    }
                     movieAdapter.setCursor(mCursor);
                     return null;
                 }

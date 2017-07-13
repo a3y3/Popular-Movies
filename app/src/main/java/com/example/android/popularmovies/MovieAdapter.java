@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.android.popularmovies.data.MovieContract;
 import com.squareup.picasso.Picasso;
@@ -104,12 +105,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
             String movieId = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_ID));
             String path = MovieDetails.PATH_TO_MOVIE_IMAGE+movieId+".png";
             File f = new File(path);
-            try{
-                Picasso.with(mContext).load(f).into(holder.imageView);
-            }
-            catch (Exception e){
-                Log.d("112","EXCEPTION OCCURERD WITH PICASSO"+e.toString());
-            }
+            Picasso.with(mContext).load(f).into(holder.imageView);
             Log.d("112","Loading "+MovieDetails.PATH_TO_MOVIE_IMAGE+movieId+".png");
         }
     }

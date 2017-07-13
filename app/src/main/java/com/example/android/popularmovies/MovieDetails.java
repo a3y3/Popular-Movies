@@ -111,12 +111,10 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
 
     public void handleStarredMovie(boolean ifClicked) {
         starClicked = ifClicked;
-        if(!starClicked){
+        if (!starClicked) {
             starClicked = true;
             starMovie.setImageResource(R.drawable.ic_star_white_24px);
-        }
-        else
-        {
+        } else {
             starClicked = false;
             starMovie.setImageResource(R.drawable.ic_star_border_white_24px);
         }
@@ -137,7 +135,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                     getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
 
 
-                    if(isExternalStorageGranted && MainActivity.isConnectedToInternet) {
+                    if (isExternalStorageGranted && MainActivity.isConnectedToInternet) {
                         AndroidNetworking.initialize(MovieDetails.this);
                         String path = PATH_TO_MOVIE_IMAGE;
                         File file = new File(path, movieId + ".png");
@@ -150,6 +148,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                                         public void onDownloadComplete() {
                                             Log.i("MovieDetails", "Download Complete");
                                         }
+
                                         @Override
                                         public void onError(ANError anError) {
                                             Log.e("MovieDetais", "Download Error" + anError.toString());
@@ -165,7 +164,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                                 @Override
                                 public void onClick(View view) {
                                     getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
-                                            MovieContract.MovieEntry.COLUMN_MOVIE_ID+"=?",
+                                            MovieContract.MovieEntry.COLUMN_MOVIE_ID + "=?",
                                             new String[]{movieId});
                                     starClicked = false;
                                     starMovie.setImageResource(R.drawable.ic_star_border_white_24px);
@@ -174,7 +173,7 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
 
                 } else {
                     getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
-                            MovieContract.MovieEntry.COLUMN_MOVIE_ID+"=?",
+                            MovieContract.MovieEntry.COLUMN_MOVIE_ID + "=?",
                             new String[]{movieId});
                     starClicked = false;
                     starMovie.setImageResource(R.drawable.ic_star_border_white_24px);
@@ -219,33 +218,34 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
                 String trailerKey;
                 String runtime;
                 String reviews[];
-                try {
+                if (MainActivity.isConnectedToInternet) {
+                    try {
+                        String jsonTrailerData = NetworkUtils.getResponseFromServer(trailerURL);
+                        String jsonRuntimeData = NetworkUtils.getResponseFromServer(runtimeURL);
+                        String jsonReviewData = NetworkUtils.getResponseFromServer(reviewURL);
+                        trailerKey = OpenMovieJsonUtils.getTrailersFromJson(jsonTrailerData);
+                        runtime = OpenMovieJsonUtils.getRuntimeFromJson(jsonRuntimeData);
+                        reviews = OpenMovieJsonUtils.getReviewsFromJson(jsonReviewData);
 
-                    String jsonTrailerData = NetworkUtils.getResponseFromServer(trailerURL);
-                    String jsonRuntimeData = NetworkUtils.getResponseFromServer(runtimeURL);
-                    String jsonReviewData = NetworkUtils.getResponseFromServer(reviewURL);
-                    trailerKey = OpenMovieJsonUtils.getTrailersFromJson(jsonTrailerData);
-                    runtime = OpenMovieJsonUtils.getRuntimeFromJson(jsonRuntimeData);
-                    reviews = OpenMovieJsonUtils.getReviewsFromJson(jsonReviewData);
-                    Cursor cursor = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
-                            null,
-                            MovieContract.MovieEntry.COLUMN_MOVIE_ID + "=?",
-                            new String[]{String.valueOf(movieId)},
-                            null);
-
-                    data[0] = trailerKey;
-                    data[1] = runtime;
-                    data[2] = reviews[0];
-                    data[3] = reviews[1];
-                    data[4] = reviews[2];
-                    if (cursor.getCount() == 0)
-                        data[5] = "no";
-                    else
-                        data[5] = "yes";
-                    cursor.close();
-                } catch (Exception exception) {
-                    Log.e("MovieDetails", exception.toString());
+                        data[0] = trailerKey;
+                        data[1] = runtime;
+                        data[2] = reviews[0];
+                        data[3] = reviews[1];
+                        data[4] = reviews[2];
+                    } catch (Exception exception) {
+                        Log.e("MovieDetails", exception.toString());
+                    }
                 }
+                Cursor cursor = getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                        null,
+                        MovieContract.MovieEntry.COLUMN_MOVIE_ID + "=?",
+                        new String[]{String.valueOf(movieId)},
+                        null);
+                if (cursor.getCount() == 0)
+                    data[5] = "no";
+                else
+                    data[5] = "yes";
+                cursor.close();
                 return data;
             }
         };
@@ -260,52 +260,54 @@ public class MovieDetails extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(Loader<String[]> loader, final String data[]) {
         onStopLoading();
         mProgressBar.setVisibility(View.INVISIBLE);
-        if (data[0] == null) {
-            //No trailer found, hide trailers play button.
-            trailerButton.setVisibility(View.INVISIBLE);
-        }
-        trailerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent openInYoutube = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + data[0]));
-                startActivity(openInYoutube);
+        if (MainActivity.isConnectedToInternet) {
+            if (data[0] == null) {
+                //No trailer found, hide trailers play button.
+                trailerButton.setVisibility(View.INVISIBLE);
             }
-        });
-        runtime = data[1];
-        runtimeTextView.setText(runtime);
-        runtimeTextView.append("min");
-        if (data[2] != null) {
-            review1TextView.setText(R.string.review_1);
-            review1TextView.setTextColor(ContextCompat.getColor(this, R.color.linkColor));
-            review1TextView.setOnClickListener(new View.OnClickListener() {
+            trailerButton.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view) {
-                    Intent openWebpageIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(data[2]));
-                    startActivity(openWebpageIntent);
+                public void onClick(View v) {
+                    Intent openInYoutube = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + data[0]));
+                    startActivity(openInYoutube);
                 }
             });
-        }
-        if (data[3] != null) {
-            review2TextView.setText(R.string.review_2);
-            review2TextView.setTextColor(ContextCompat.getColor(this, R.color.linkColor));
-            review2TextView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent openWebpageIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(data[3]));
-                    startActivity(openWebpageIntent);
-                }
-            });
-        }
-        if (data[4] != null) {
-            review3TextView.setText(R.string.review_3);
-            review3TextView.setTextColor(ContextCompat.getColor(this, R.color.linkColor));
-            review3TextView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent openWebpageIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(data[4]));
-                    startActivity(openWebpageIntent);
-                }
-            });
+            runtime = data[1];
+            runtimeTextView.setText(runtime);
+            runtimeTextView.append("min");
+            if (data[2] != null) {
+                review1TextView.setText(R.string.review_1);
+                review1TextView.setTextColor(ContextCompat.getColor(this, R.color.linkColor));
+                review1TextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent openWebpageIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(data[2]));
+                        startActivity(openWebpageIntent);
+                    }
+                });
+            }
+            if (data[3] != null) {
+                review2TextView.setText(R.string.review_2);
+                review2TextView.setTextColor(ContextCompat.getColor(this, R.color.linkColor));
+                review2TextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent openWebpageIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(data[3]));
+                        startActivity(openWebpageIntent);
+                    }
+                });
+            }
+            if (data[4] != null) {
+                review3TextView.setText(R.string.review_3);
+                review3TextView.setTextColor(ContextCompat.getColor(this, R.color.linkColor));
+                review3TextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent openWebpageIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(data[4]));
+                        startActivity(openWebpageIntent);
+                    }
+                });
+            }
         }
         if (data[5].equals("no")) {
             handleStarredMovie(true);
