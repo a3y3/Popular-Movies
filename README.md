@@ -4,4 +4,4 @@ An app that shows you the most popular movies playing using The Movie Database A
 You'll need an API key from The Movie Database. Insert it in:
  <code>NetworkApiKey.API_KEY</code>
 ### Or
-If you're too lazy and don't want to build this project yourself simply grab an apk from the build folder ^.^ (may not be always available)
+If you're too lazy and don't want to build this project yourself simply grab an apk from the build folder(https://github.com/a3y3/Popular-Movies/tree/master/app/build/outputs/apk) ^.^ (may not be always available)
